@@ -1,5 +1,7 @@
 name: hplip-printer-app
 base: core22
+version: '3.22.10-7'
+grade: stable
 summary: HPLIP Printer Application
 description: |
   The HPLIP Printer Application is a PAPPL (Printer Application
@@ -104,10 +106,11 @@ parts:
   pappl-retrofit:
     source: https://github.com/openprinting/pappl-retrofit
     source-type: git
-    source-tag: '1.0b2'
+    # source-tag: '1.0b2'
     source-depth: 1
 # ext:updatesnap
 #   version-format:
+#     ignore: true
 #     format: '%V'
     plugin: autotools
     autotools-configure-parameters:
@@ -214,6 +217,9 @@ parts:
       - --with-drivers=cups,pwgraster,ps2write
       - --enable-freetype
       - --without-tesseract
+      - --without-gpdl
+      - --without-pcl
+      - --without-xps
       - --datarootdir=/snap/hplip-printer-app/current/usr/share/
     stage-packages:
       - libpaper1
@@ -547,18 +553,6 @@ parts:
     # the hp backend, and the hp-probe utility
     override-build: |
       set -eux
-      # Versioning settings:
-      # Grade: stable/devel
-      GRADE=stable
-      # Package release number (integer)
-      PACKAGERELEASE=1
-      # Current upstream version of HPLIP
-      upstreamversion="`cat configure.in | grep '^AC_INIT\b' | perl -p -e 's/^.*\[([\d\.]+)\].*$/\1/'`"
-      # Compose version string
-      version="$upstreamversion-$PACKAGERELEASE"
-      # Set version and grade
-      craftctl set version="$version"
-      craftctl set grade="$GRADE"
       # Correct hard-coded /etc/hp/ path in Makefile
       perl -p -i -e 's:/etc/hp:/snap/hplip-printer-app/current/etc/hp:' Makefile*
       # Remove hard-coded linking of binary-only libImageProcessor
@@ -691,6 +685,7 @@ parts:
       - perl-base
       - python3
       - xz-utils
+      - curl
     stage-packages:
       - python3
       - python3-minimal
